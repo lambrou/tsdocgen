@@ -1,0 +1,146 @@
+{% extends "generator/base.html" %}
+{% block content %}
+{% load generator_extras %}
+{% load static %}
+    <div class="row">
+        {% for name, object in object_list.items %}
+            <div class="col">
+            {% if name == 'imports' %}
+                <h2 class="list-group-item-heading">
+                    {{ name|title }}
+                    <small class="sort-list">
+                        <div class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">sort</a>
+                            <div class="dropdown-menu">
+                                {% for field in importFields %}
+                                    {% if field %}
+                                    <a class="dropdown-item" href="#">
+                                        <li class="import-sort">{{ field|underscore_to_whitespace }}</li>
+                                    </a>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </small>
+                </h2>
+                {% for model in object %}
+                    <div class="list-group">
+                        <ul class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1"><a href="{% url 'generator:imports' model.id %}">{{ model.import_name|truncatechars:15 }}</a></h5>
+                                <small>{{ model.created_date|timesince }} ago</small><br/>
+                            </div>
+                            <p class="mb-1">{{ model.import_path|truncatechars:30 }}</p>
+                            <small id="del-import-{{ model.id }}" class="list-delete-button">🗑</small>
+                        </ul>
+                        </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if name == 'functions' %}
+                <h2 class="list-group-item-heading">
+                    {{ name|title }}
+                    <small class="sort-list">
+                        <div class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">sort</a>
+                            <div class="dropdown-menu">
+                                {% for field in functionFields %}
+                                    {% if field %}
+                                    <a class="dropdown-item" href="#">
+                                        <li class="function-sort">{{ field|underscore_to_whitespace }}</li>
+                                    </a>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </small>
+                </h2>
+                <div class="list-group">
+                {% for model in object %}
+                        <ul class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1"><a href="{% url 'generator:functions' model.id %}">{{ model.function_name|truncatechars:15 }}</a></h5>
+                                <small>{{ model.created_date|timesince }} ago</small><br/>
+                                    <div class="dropdown">
+                                        <a href="#" data-toggle="dropdown">
+                                            <span class="badge bg-primary rounded-pill">{{ model.function_called_by.count }}</span>
+                                        </a>
+                                        {% if model.function_called_by.all %}
+                                            <div class="dropdown-menu">
+                                                {% for caller in model.function_called_by.all %}
+                                                    {% if caller %}
+                                                    <a class="dropdown-item" href="{% url 'generator:functions' model.id %}">
+                                                        <li>{{ caller }}</li>
+                                                    </a>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                            </div>
+                            <p class="mb-1">{{ model.function_description|truncatechars:100 }}</p>
+                            <small>Params: {{ model.function_parameters|parse_hstore_value|default:"None"|truncatechars:30 }}</small>
+                            <small id="del-function-{{ model.id }}" class="list-delete-button">🗑</small>
+                        </ul>
+                {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if name == 'variables' %}
+                <h2 class="list-group-item-heading">
+                    {{ name|title }}
+                    <small class="sort-list">
+                        <div class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">sort</a>
+                            <div class="dropdown-menu">
+                                {% for field in variableFields %}
+                                    {% if field %}
+                                    <a class="dropdown-item" href="#">
+                                        <li class="variable-sort">{{ field|underscore_to_whitespace }}</li>
+                                    </a>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </small>
+                </h2>
+                <div class="list-group">
+                {% for model in object %}
+                        <ul class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1"><a href="{% url 'generator:variables' model.id %}">{{ model.variable_name|truncatechars:15 }}</a></h5>
+                                <small>{{ model.created_date|timesince }} ago</small><br/>
+                                <small>
+                                    <div class="dropdown">
+                                        <a href="#" data-toggle="dropdown">
+                                            <span class="badge bg-primary rounded-pill">{{ model.used_by.count }}</span>
+                                        </a>
+                                        {% if model.used_by.all %}
+                                            <div class="dropdown-menu">
+                                                {% for caller in model.used_by.all %}
+                                                    {% if caller %}
+                                                    <a class="dropdown-item" href="{% url 'generator:variables' model.id %}">
+                                                        <li>{{ caller }}</li>
+                                                    </a>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </small>
+                            </div>
+                            <p class="mb-1">{{ model.variable_value|truncatechars:65 }}</p>
+                            <small>{{ model.variable_type }}</small>
+                            <div id="del-variable-{{ model.id }}" class="list-delete-button">🗑</div>
+                        </ul>
+                {% endfor %}
+                </div>
+
+            {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    <script src="{% static 'generator/js/sortlist.js' %}"></script>
+    <script src="{% static 'generator/js/deleteObjects.js' %}"></script>
+
+{% endblock %}

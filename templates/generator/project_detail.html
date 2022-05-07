@@ -1,0 +1,51 @@
+{% extends "generator/base.html" %}
+{% block content %}
+{% load generator_extras %} {% load static %}
+    <div class="row">
+        <div class="col-3">
+        </div>
+        <div class="col-6 data-panel">
+            {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+                <h1>{{ project.project_name }}</h1>
+                <p>{{ project.project_description }}</p>
+                <ul class="nested-ul">
+                    <li>Imports<span class="caret"></span>
+                        <ul class="nested">
+                            <li>
+                                {% for import in project.imports.all %}
+                                    <a href="{% url 'generator:imports' import.id %}">
+                                        {{ import }}
+                                    </a>
+                                {% endfor %}
+                            </li>
+                        </ul>
+                    </li>
+                    <li>Functions:<span class="caret"></span>
+                        <ul class="nested">
+                                {% for function in project.functions.all %}
+                                    <li>
+                                        <a href="{% url 'generator:functions' function.id %}">
+                                            {{ function }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                        </ul>
+                    </li>
+
+                    <li>Variables:<span class="caret"></span>
+                        <ul class="nested">
+                                {% for variable in project.variables.all %}
+                                    <li>
+                                        <a href="{% url 'generator:variables' variable.id %}">
+                                            {{ variable }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+            <script src="{% static 'generator/js/treestructure.js' %}"></script>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "generator/base.html" %}
+{% block content %}
+{% load generator_extras %}
+{% load static %}
+    <div class="row">
+        <div class="col">
+            <h2 class="list-group-item-heading">
+                Projects <a href="add" style="text-decoration:none;" class="add-button">+</a>
+            </h2>
+        {% for project in object_list %}
+            <div class="list-group">
+                <a href="{% url 'generator:projects' project.id %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ project.project_name }}</h5>
+                        <small>{{ project.created_date|timesince }} ago</small><br/>
+                    </div>
+                    <p class="mb-1">{{ project.project_description }}</p>
+                </a>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+{% endblock %}

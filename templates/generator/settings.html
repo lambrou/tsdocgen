@@ -1,0 +1,38 @@
+{% extends "generator/base.html" %}
+{% block content %}
+{% load generator_extras %}
+<div class="row">
+    <div class="col-3">
+
+    </div>
+    <div class="col-6">
+        <form>
+            <div class="form-group">
+                {% for field in form %}
+                    {% if field.field.widget|widget_type == "Select" %}
+                        <label for="{{ field.name }}">{{ field.name|title|underscore_to_whitespace }}</label>
+                        <select name="{{ field.name }}" id="{{ field.name }}">
+                            {% for data in field %}
+                                <option value="{{ data }}"></option>
+                            {% endfor %}
+                        </select>
+                    {% endif %}
+                    {% if field.field.widget|widget_type == "SelectMultiple" %}
+                        <label for="{{ field.name }}">{{ field.name|title|underscore_to_whitespace }}</label>
+                        <select name="{{ field.name }}" id="{{ field.name }}" multiple>
+                            {% for data in field %}
+                                <option value="{{ data }}"></option>
+                            {% endfor %}
+                        </select>
+                    {% endif %}
+                    <br/>
+                {% endfor %}
+
+            </div>
+        </form>
+    </div>
+    <div class="col-3">
+
+    </div>
+</div>
+{% endblock %}

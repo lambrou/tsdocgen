@@ -1,0 +1,61 @@
+{% extends "generator/base.html" %}
+{% block content %}
+{% load generator_extras %}
+    <div class="row">
+        <div class="col-3">
+        </div>
+        <div class="col-6 data-panel">
+            {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+            {% if 'imports' in request.path %}
+                <h1>{{ import.import_name }}</h1>
+                <p>Imported From: {{ import.import_path }}</p>
+            {% endif %}
+
+            {% if 'functions' in request.path %}
+                <h1>{{ function.function_name }}</h1>
+                <ul>
+                    <li>Parameters: {{ function.function_parameters|default:"None"|parse_hstore_value }}</li>
+                    <li>Returns: {{ function.function_returns|default:"None"|parse_hstore_value }}</li>
+                    <li>Imported From: {{ function.imported_from|default:"Nowhere" }}</li>
+                    <li>Called by:
+                        {% for caller in function.function_called_by.all %}
+                            <a href="{% url 'generator:functions' caller.id %}">
+                                {{ caller|default:"Nothing" }}
+                            </a>
+                        {% endfor %}
+                    </li>
+                    <li>Calls:
+                        {% for callee in function.function_calls.all %}
+                            <a href="{% url 'generator:functions' callee.id %}">
+                                {{ callee|default:"Nothing" }}
+                            </a>
+                        {% endfor %}
+                    </li>
+
+                </ul>
+                <p>{{ function.function_description }}</p>
+                <h3>Examples:</h3>
+                <p>{{ function.function_examples }}</p>
+            {% endif %}
+
+            {% if 'variables' in request.path %}
+                <h1>{{ variable.variable_name }}</h1>
+                <ul>
+                    <li>Scope: {{ variable.variable_scope }}</li>
+                    <li>Type: {{ variable.variable_type }}</li>
+                    <li>Used by:
+                        {% for caller in variable.used_by.all %}
+                            <a href="{% url 'generator:functions' caller.id %}">
+                                {{ caller|default:"Nothing" }}
+                            </a>
+                        {% endfor %}
+                    </li>
+                    <li>Value: {{ variable.variable_value }}</li>
+                </ul>
+            {% endif %}
+        </div>
+        <div class="col-3">
+        </div>
+    </div>
+
+{% endblock %}
