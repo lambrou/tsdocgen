@@ -14,20 +14,20 @@
             {% if 'functions' in request.path %}
                 <h1>{{ function.function_name }}</h1>
                 <ul>
-                    <li>Parameters: {{ function.function_parameters|default:"None"|parse_hstore_value }}</li>
-                    <li>Returns: {{ function.function_returns|default:"None"|parse_hstore_value }}</li>
+                    <li>Parameters: {{ function.function_parameters|default:"None"|parse_hstore_value|replace_type }}</li>
+                    <li>Returns: {{ function.function_returns|default:"None" }}</li>
                     <li>Imported From: {{ function.imported_from|default:"Nowhere" }}</li>
                     <li>Called by:
                         {% for caller in function.function_called_by.all %}
                             <a href="{% url 'generator:functions' caller.id %}">
-                                {{ caller|default:"Nothing" }}
+                                {{ caller|default:"Nothing"|replace_type }}
                             </a>
                         {% endfor %}
                     </li>
                     <li>Calls:
                         {% for callee in function.function_calls.all %}
                             <a href="{% url 'generator:functions' callee.id %}">
-                                {{ callee|default:"Nothing" }}
+                                {{ callee|default:"Nothing"|replace_type }}
                             </a>
                         {% endfor %}
                     </li>

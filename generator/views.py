@@ -105,7 +105,6 @@ class ProjectDetailView(generic.DetailView):
 
 
 def addProjectView(request):
-
     if request.method == 'POST':
         form = ProjectForm(request.POST, request.FILES)
         files = request.FILES.items()
@@ -131,31 +130,55 @@ def addProjectView(request):
 def getAST(file):
     parsed_ts = subprocess.run(['node', str(BASE_DIR) + '\\generator\\static\\generator\\js\\parseTypeScriptFile.js',
                                 str(file)], stdout=subprocess.PIPE)
-    print(parsed_ts)
-    #file_json = json.loads(parsed_ts.stdout.decode('utf-8'))
-    with open('ast.txt', 'w+') as file:
-        file.write(parsed_ts.stdout.decode('utf-8'))
-    #return file_json
+    file_json = json.loads(parsed_ts.stdout.decode('utf-8'))
+    # with open('ast.txt', 'w+') as file:
+    #     file.write(parsed_ts.stdout.decode('utf-8'))
+    return file_json
 
 
 def saveObjects(objects, user):
     print(objects)
-    # for func in objects['file']['functions']:
-    #     new_function = Function(
-    #         function_name=func['name'],
-    #         function_parameters=func['parameters'],
-    #     )
-    #     new_function.save()
-    #
-    # for func in objects['file']['functions']:
-    #     for callee in func['calls']:
-    #         callee_object = Function.objects.filter(function_name=callee)
-    #         if callee_object:
-    #             func_object = Function.objects.get(function_name=func['name'])
-    #             func_object.function_calls.add(callee_object[0])
-    #             callee_object[0].function_called_by.add(func_object)
-    #             callee_object[0].save()
-    #             func_object.save()
+
+    saveFunctions(objects)
+    saveCalls(objects)
+    saveVariables(objects)
+
+
+def saveVariables(objects):
+    for variable in objects['file']['variables']:
+        try:
+            new_variable = Variable(
+                variable_name=variable['name'],
+                variable_type=variable['type'],
+                variable_value=variable['value']
+            )
+            new_variable.save()
+        except KeyError:
+            new_variable = Variable(
+                variable_name=variable['name'],
+                variable_type=variable['type']
+            )
+
+
+def saveFunctions(objects):
+    for func in objects['file']['functions']:
+        new_function = Function(
+            function_name=func['name'],
+            function_parameters=func['parameters'],
+        )
+        new_function.save()
+
+
+def saveCalls(objects):
+    for func in objects['file']['functions']:
+        for callee in func['calls']:
+            callee_object = Function.objects.filter(function_name=callee)
+            if callee_object:
+                func_object = Function.objects.get(function_name=func['name'])
+                func_object.function_calls.add(callee_object[0])
+                callee_object[0].function_called_by.add(func_object)
+                callee_object[0].save()
+                func_object.save()
 
 
 class DeleteImportView(generic.DeleteView):
@@ -188,4 +211,3 @@ class SettingsView(generic.UpdateView):
         self.object = form.save(commit=False)
         self.object.save()
         return super().form_valid(form)
-

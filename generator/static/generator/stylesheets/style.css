@@ -7,6 +7,8 @@ h1, h3 {
 .data-panel {
     margin-top: 2vh;
     border: none #0AA1DD;
+}
+.data-panel li {
     list-style: none;
 }
 .sort-list {
