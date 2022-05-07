@@ -2,3 +2,4 @@ node_modules/
 tmp/
 venv/
 static_files/
+ast.txt
