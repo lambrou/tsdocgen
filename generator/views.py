@@ -115,7 +115,7 @@ def addProjectView(request):
                     for chunk in file[1].chunks():
                         destination.write(chunk)
 
-                ast = getAST(str(BASE_DIR) + '\\tmp\\' + filename)
+                ast = getAST(str(BASE_DIR) + '/tmp/' + filename)
                 saveObjects(ast, request.user)
 
             return render(request, 'generator/project_form.html', {'form': form})
@@ -128,7 +128,7 @@ def addProjectView(request):
 
 
 def getAST(file):
-    parsed_ts = subprocess.run(['node', str(BASE_DIR) + '\\generator\\static\\generator\\js\\parseTypeScriptFile.js',
+    parsed_ts = subprocess.run(['node', str(BASE_DIR) + '/generator/static/generator/js/parseTypeScriptFile.js',
                                 str(file)], stdout=subprocess.PIPE)
     file_json = json.loads(parsed_ts.stdout.decode('utf-8'))
     # with open('ast.txt', 'w+') as file:

@@ -20,7 +20,9 @@ const source =  fs.readFileSync(process.argv[2]).toString()
 //
 // const [body, email] = generateUser(baseName, i)
 //
-// const automationListingUrl = \`\${boomtownURL}/api/automations/?sAction=listing${anotherTest}\`
+// const automationListingUrl = \`\${boomtownURL}/api/automations/?sAction=listing\${anotherTest}\`
+//
+// const thisIsATest = test + test2 + test3
 //
 // `
 const recast = require('recast')
@@ -106,6 +108,51 @@ function parseTemplateLiteral(declaration, variableValue) {
   return variableValue;
 }
 
+let binaryExpressionValue = ''
+function parseBinaryExpression(declaration) {
+  const left = declaration.init.left
+  const right = declaration.init.right
+  for (const l of left) {
+    if (l) {
+      if (l.type !== 'BinaryExpression') {
+        if (l.name) {
+          binaryExpressionValue = binaryExpressionValue + l.name
+        }
+        if (l.value) {
+          binaryExpressionValue = binaryExpressionValue + l.value
+        }
+        if (l.quasis) {
+          binaryExpressionValue = binaryExpressionValue + parseTemplateLiteral(l)
+        }
+      }
+      if (l.type === 'BinaryExpression') {
+        binaryExpressionValue = binaryExpressionValue + l.operator
+        parseBinaryExpression([l.left, l.right], right)
+      }
+    }
+  }
+  for (const r of right) {
+    if (r) {
+      if (r.type !== 'BinaryExpression') {
+        if (r.name) {
+          binaryExpressionValue = binaryExpressionValue + r.name
+        }
+        if (r.value) {
+          binaryExpressionValue = binaryExpressionValue + r.value
+        }
+        if (r.quasis) {
+          binaryExpressionValue = binaryExpressionValue + parseTemplateLiteral(r)
+        }
+      }
+      if (right.type === 'BinaryExpression') {
+        binaryExpressionValue = binaryExpressionValue + r.operator
+        parseBinaryExpression(left, [r.left, r.right])
+      }
+    }
+  }
+  return binaryExpressionValue
+}
+
 function parseDeclaration(declaration, variableType, variableValue) {
   if (declaration.init) {
     variableType = declaration.init.type
@@ -120,6 +167,10 @@ function parseDeclaration(declaration, variableType, variableValue) {
       findAllProperties(declaration.init.object)
       finalObject = finalObject + finalProperty
       variableValue = finalObject
+    }
+    if (declaration.init.type === 'BinaryExpression') {
+      variableValue = parseBinaryExpression(declaration)
+      binaryExpressionValue = ''
     }
     if (declaration.init.callee) {
       variableValue = declaration.init.callee.name
